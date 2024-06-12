@@ -2,14 +2,10 @@ from flask import Blueprint, request, jsonify
 from model import Book
 from app import db
 
-book_bp = Blueprint('book', __name__, url_prefix='/api/book')
+book_bp = Blueprint('book', __name__, url_prefix='/api')
 
 
-@book_bp.route('/book/check_connection', methods=['GET'])
-def check_connection():
-    return jsonify({"message": "Connection with Postman established."})
-
-@book_bp.route('/create', methods=['POST'])
+@book_bp.route('/book', methods=['POST'])
 def create_book():
 
     data = request.json
@@ -32,7 +28,7 @@ def create_book():
     return jsonify({"message": "Book created successfully"}), 201
 
 
-@book_bp.route('/info', methods=['GET'])
+@book_bp.route('/book', methods=['GET'])
 def book_info():
 
     books = Book.query.all()
@@ -58,7 +54,7 @@ def book_info():
     return jsonify({"books": book_list}), 200
 
 
-@book_bp.route('/update/<int:book_id>', methods=['PATCH'])
+@book_bp.route('/book/<int:book_id>', methods=['PATCH'])
 def book_info_change(book_id):
 
     data = request.json
