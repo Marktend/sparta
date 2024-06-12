@@ -15,6 +15,9 @@ def create_app():
     from views import main_views
     app.register_blueprint(main_views.bp)
 
+    from apis import book_api
+    app.register_blueprint(book_api.book_bp)
+
     @app.route("/")
     def home():
         return render_template('index.html')
