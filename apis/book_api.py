@@ -31,3 +31,71 @@ def create_book():
 
     return jsonify({"message": "Book created successfully"}), 201
 
+
+@book_bp.route('/info', methods=['GET'])
+def book_info():
+
+    books = Book.query.all()
+
+
+    book_list = []
+
+
+    for book in books:
+        book_data = {
+            'id': book.id,
+            'title': book.title,
+            'author': book.author,
+            'book_info': book.book_info,
+            'subject': book.subject,
+            'rental': book.rental,
+            'user_id': book.user_id,
+            'img_url': book.img_url
+        }
+        book_list.append(book_data)
+
+
+    return jsonify({"books": book_list}), 200
+
+
+@book_bp.route('/update/<int:book_id>', methods=['PATCH'])
+def book_info_change(book_id):
+
+    data = request.json
+    title = data.get('title')
+    author = data.get('author')
+    book_info = data.get('book_info')
+    subject = data.get('subject')
+    rental = data.get('rental')
+    user_id = data.get('user_id')
+    img_url = data.get('img_url')
+
+
+    if not any([title, author, book_info, subject, rental, user_id, img_url]):
+        return jsonify({"error": "변경된 점이 없습니다."}), 400
+
+
+    book = Book.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Data not found"}), 404
+
+    if title:
+        book.title = title
+    if author:
+        book.author = author
+    if book_info:
+        book.book_info = book_info
+    if subject:
+        book.subject = subject
+    if rental is not None:
+        book.rental = rental
+    if user_id:
+        book.user_id = user_id
+    if img_url:
+        book.img_url = img_url
+
+    db.session.commit()
+
+    return jsonify({"message": "Book updated successfully"}), 200
+
+
