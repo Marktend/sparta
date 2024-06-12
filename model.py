@@ -19,6 +19,7 @@ class Book(db.Model):
     subject = db.Column(db.String(120), nullable=False)
     rental = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    img_url = db.Column(db.String(1000), nullable=False)
 
     def __repr__(self):
         return f'<Book {self.title} by {self.author}>'
