@@ -1,0 +1,4 @@
+flask
+pip install flask-migrate
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
