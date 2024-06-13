@@ -12,11 +12,15 @@ def create_app():
     from views import main_views
     app.register_blueprint(main_views.bp)
 
+    from views import book_view
+    app.register_blueprint(book_view.book_bp)
+
     from apis import book_api
     app.register_blueprint(book_api.book_bp)
 
     from apis import user_api
     app.register_blueprint(user_api.user_bp)
+
 
     @app.route("/")
     def home():
