@@ -12,6 +12,12 @@ def create_app():
     from views import main_views
     app.register_blueprint(main_views.bp)
 
+    from views import book_view
+    app.register_blueprint(book_view.bp)
+
+    from views import user_view
+    app.register_blueprint(user_view.bp)
+
     from apis import book_api
     app.register_blueprint(book_api.book_bp)
 
