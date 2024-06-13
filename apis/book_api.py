@@ -33,9 +33,7 @@ def book_info():
 
     books = Book.query.all()
 
-
     book_list = []
-
 
     for book in books:
         book_data = {
@@ -44,7 +42,6 @@ def book_info():
             'author': book.author,
             'book_info': book.book_info,
             'subject': book.subject,
-            'rental': book.rental,
             'user_id': book.user_id,
             'img_url': book.img_url
         }
