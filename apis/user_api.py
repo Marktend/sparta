@@ -59,8 +59,6 @@ def get_userInfo(user_id):
 
     return jsonify(user_info), 200
 
-from werkzeug.security import generate_password_hash
-
 @user_bp.route('/user/<int:user_id>', methods=['PATCH'])
 def update_user(user_id):
     data = request.json

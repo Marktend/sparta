@@ -4,12 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title>Team 윤이김최</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 
+        .btn {
+        display: inline-block; /* 인라인 블록 요소로 설정 */
+        vertical-align: middle; /* 세로 정렬 */
+        }
         .background-banner {
             background-image: linear-gradient(45deg,
                     rgb(51 43 43 / 75%),
@@ -35,10 +39,21 @@
                 </a>
                 <div class="d-flex flex-row-reverse bd-highlight">
                     <!--회원 정보가 있을 경우(이미 로그인 상태인경우)-->
-                    {% if data %}
-                    <button type="button" class="btn btn-secondary me-2 p-2">로그아웃</button>
+                    {% if current_user.is_authenticated %}
+                    <form id="logoutForm" method="POST" action="{{ url_for('auth.logout') }}">
+                        <button type="submit" class="btn btn-secondary me-2 p-2" onclick="location.href='/'">로그아웃</button>
+                    </form>
+
+
+
                     <button type="button" class="btn btn-secondary me-2 p-2" data-bs-toggle="modal"
-                        data-bs-target="#modifyAccount">회원정보변경</button>
+                        data-bs-target="#modifyAccountModal">회원정보변경</button>
+                    <button type="button" class="btn btn-secondary me-2 p-2" data-bs-toggle="modal"
+                        data-bs-target="#">{{ current_user.nickname }}님 반갑습니다.</button>
+                    <form class="d-flex" id="searchForm">
+                        <input class="form-control me-2" type="search" placeholder="검색어를 입력하세요" aria-label="검색어 입력" id="searchInput">
+                        <button class="btn btn-secondary me-2 p-2 bd-highlight" type="submit">search</button>
+                    </form>
 
                     <!--회원 정보가 없는 경우(로그인 해야하는 경우)-->
                     {% else %}
@@ -47,13 +62,6 @@
                     <button type="button" class="btn btn-secondary me-2 p-2" data-bs-toggle="modal"
                         data-bs-target="#createAccountModal">회원가입</button>
                     {% endif %}
-
-                    <form class="d-flex">
-                        <input class="form-control me-2 p-2 bd-highlight" type="search" placeholder="Search"
-                            aria-label="Search">
-                        <button class="btn btn-secondary me-2 p-2 bd-highlight " type="submit">Search</button>
-                    </form>
-
                 </div>
 
             </div>
@@ -67,56 +75,85 @@
             </div>
         </div>
 
+        <!-- Cards -->
+        <div class="row row-cols-1 row-cols-md-4 g-4 mx-auto w-75 pb-5" id="searchResults">
+
+        </div>
+
+
+        <div class="px-1 py-1 my-1 text-center">
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#createBookModal">
+                    도서 추가
+                </button>
+            </div>
+        </div>
+
         <!-- createBookModal -->
-        <div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        {% if current_user.is_authenticated %}
+        <div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">최애 음악</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">도서 등록</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form>
+                        <form id="bookForm">
                             <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">유저</label>
-                                <input type="text" class="form-control" id="exampleInputEmail1"
-                                    aria-describedby="emailHelp">
-                                <div id="emailHelp" class="form-text">사용자(추천인)의 이름을 넣어주세요.</div>
+                                <label for="title" class="form-label">제목</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">노래 제목</label>
-                                <input type="text" class="form-control" id="exampleInputPassword1">
-                                <div id="emailHelp" class="form-text">좋아하는 노래 제목을 넣어주세요.</div>
+                                <label for="author" class="form-label">저자</label>
+                                <input type="text" class="form-control" id="author" name="author" required>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">가수</label>
-                                <input type="text" class="form-control" id="exampleInputPassword1">
+                                <label for="book_info" class="form-label">책 소개</label>
+                                <input type="text" class="form-control" id="book_info" name="book_info" required>
+                                <div class="form-text">간단하게 한줄로 입력해주세요.</div>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">앨범 커버URL</label>
-                                <input type="text" class="form-control" id="exampleInputPassword1">
+                                <label for="subject" class="form-label">주제</label>
+                                <input type="text" class="form-control" id="subject" name="subject" required>
+                                <div class="form-text">간단한 단어로 입력해주세요.</div>
                             </div>
-                            <button type="submit" class="btn btn-danger">Submit</button>
+                            <div class="mb-3">
+                                <label for="img_url" class="form-label">북커버 URL</label>
+                                <input type="text" class="form-control" id="img_url" name="img_url" required>
+                                <div class="form-text">교보문고 북커버 이미지 URL</div>
+                            </div>
+                            <button type="submit" class="btn btn-danger">완료</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
+        {% endif %}
         <!-- loginModal -->
-        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <h5 class="modal-title" id="loginModalLabel">로그인</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        ...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Email</label>
+                                <input type="text" id="email" name="email" class="form-control" placeholder="Email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputPassword1" class="form-label">Password</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">로그인</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -128,71 +165,88 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">회원가입</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        ...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <form id="registrationForm">
+                            <label for="nickname">닉네임:</label>
+                            <input type="text" id="signup-nickname" name="nickname" required><br><br>
+
+                            <label for="email">이메일:</label>
+                            <input type="email" id="signup-email" name="email" required><br><br>
+
+                            <label for="password">비밀번호:</label>
+                            <input type="password" id="signup-password" name="password" required><br><br>
+
+                            <label for="phone_number">전화번호:</label>
+                            <input type="text" id="signup-phone_number" name="phone_number" required><br><br>
+
+                            <button type="submit">회원가입</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cards -->
-        <div class="row row-cols-1 row-cols-md-4 g-4 mx-auto w-75 pb-5">
-            <div class="col">
-                <div class="card h-100">
-                    <img src="https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9788952776372.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">리틀 라이프 1</h5>
-                        <p class="card-text">한야 야나기하라</p>
-                        <p class="card-text">시공사</p>
+        <!-- modifyAccountModal -->
+        {% if current_user.is_authenticated %}
+        <div class="modal fade" id="modifyAccountModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">회원 정보 수정</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card h-100">
-                    <img src="https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9788952776372.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">리틀 라이프 1</h5>
-                        <p class="card-text">한야 야나기하라</p>
-                        <p class="card-text">시공사</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card h-100">
-                    <img src="https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9788952776372.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">리틀 라이프 1</h5>
-                        <p class="card-text">한야 야나기하라</p>
-                        <p class="card-text">시공사</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <div class="modal-body">
+                        <form id="user-info-update-form">
+                            <div class="mb-3">
+                                <label for="nickname">닉네임:</label>
+                                <input type="text" id="update-nickname" name="nickname" class="form-control" placeholder="닉네임">
+                            </div>
 
-        <div class="px-1 py-1 my-1 text-center">
-                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                    <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#createBookModal">
-                        도서 추가
-                    </button>
+                            <div class="mb-3">
+                                <label for="email">이메일:</label>
+                                <input type="email" id="update-email" name="email" class="form-control" placeholder="이메일">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password">비밀번호:</label>
+                                <input type="password" id="update-password" name="password" class="form-control" placeholder="비밀번호" >
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone_number">전화번호:</label>
+                                <input type="text" id="update-phone_number" name="phone_number" class="form-control" placeholder="전화번호">
+                            </div>
+
+                            <input type="hidden" id="update-current-user-id" name="user_id" value="{{ current_user.user_id }}">
+
+                            <button type="submit" class="btn btn-primary">변경하기</button>
+                        </form>
+
+                    </div>
                 </div>
             </div>
         </div>
+        {% endif %}
+
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
             crossorigin="anonymous"></script>
+
+    <!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Bootstrap Bundle (includes Popper) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ url_for('static', filename='book.js') }}"></script>
 </body>
+
+
 
 </html>

@@ -10,9 +10,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
 
-    app.config['SECRET_KEY'] = 'your_secret_key_here'  # Replace with your actual secret key
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'your_secret_key_here'
 
     db.init_app(app)
 
@@ -20,9 +18,6 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     login_manager.init_app(app)
-
-    from views import main_views
-    app.register_blueprint(main_views.bp)
 
     from views import book_view
     app.register_blueprint(book_view.book_view_bp)
@@ -35,10 +30,6 @@ def create_app():
 
     from apis import user_api
     app.register_blueprint(user_api.user_bp)
-
-    @app.route("/")
-    def home():
-        return render_template('index.html')
 
     with app.app_context():
         db.create_all()

@@ -13,14 +13,12 @@ def create_book():
     author = data.get('author')
     book_info = data.get('book_info')
     subject = data.get('subject')
-    rental = data.get('rental')
-    user_id = data.get('user_id')
     img_url = data.get('img_url')
 
-    if not all([title, author, book_info, subject, rental, user_id, img_url]):
+    if not all([title, author, book_info, subject, img_url]):
         return jsonify({"error": "Incomplete book information"}), 400
 
-    new_book = Book(title=title, author=author, book_info=book_info, subject=subject, rental=rental, user_id=user_id, img_url=img_url)
+    new_book = Book(title=title, author=author, book_info=book_info, subject=subject, img_url=img_url)
 
     db.session.add(new_book)
     db.session.commit()
@@ -115,3 +113,19 @@ def book_rent(book_id):
     db.session.commit()
 
     return jsonify({"message": "Book updated successfully"}), 200
+
+
+@book_bp.route('/book/search', methods=['POST'])
+def book_search():
+    data = request.json
+    search_query = data.get('title')
+
+    if not search_query:
+        return jsonify({"error": "No search query provided"}), 400
+
+    search_result = Book.query.filter(Book.title.ilike(f'%{search_query}%')).all()
+
+    if not search_result:
+        return jsonify({"message": "No books found with the provided title"}), 404
+
+    return jsonify([book.as_dict() for book in search_result]), 200
